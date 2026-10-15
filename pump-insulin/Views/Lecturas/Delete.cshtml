@@ -1,0 +1,28 @@
+@model pumpinsulin.Models.Lectura
+
+@{
+    ViewData["Title"] = "Eliminar Lectura";
+}
+
+<h2 class="text-danger">Eliminar Lectura</h2>
+<h4>¿Estás seguro de que deseas eliminar este registro?</h4>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Fecha y Hora</dt>
+    <dd class="col-sm-9">@Model.FechaHora.ToString("dd/MM/yyyy HH:mm")</dd>
+
+    <dt class="col-sm-3">Glucosa</dt>
+    <dd class="col-sm-9">@Model.NivelGlucosaMgDl mg/dL</dd>
+
+    <dt class="col-sm-3">Insulina Suministrada</dt>
+    <dd class="col-sm-9">@Model.InsulinaSuministradaU U</dd>
+
+    <dt class="col-sm-3">Estado / Alerta</dt>
+    <dd class="col-sm-9">@Model.Alerta</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Confirmar Eliminación</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

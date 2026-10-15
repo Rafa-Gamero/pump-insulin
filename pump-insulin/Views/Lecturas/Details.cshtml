@@ -1,0 +1,38 @@
+@model pumpinsulin.Models.Lectura
+
+@{
+    ViewData["Title"] = "Detalles de la Lectura";
+}
+
+<h2>Detalles de la Lectura</h2>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Fecha y Hora</dt>
+    <dd class="col-sm-9">@Model.FechaHora.ToString("dd/MM/yyyy HH:mm:ss")</dd>
+
+    <dt class="col-sm-3">Glucosa</dt>
+    <dd class="col-sm-9">@Model.NivelGlucosaMgDl mg/dL</dd>
+
+    <dt class="col-sm-3">Insulina Suministrada</dt>
+    <dd class="col-sm-9">@Model.InsulinaSuministradaU U</dd>
+
+    <dt class="col-sm-3">Estado / Alerta</dt>
+    <dd class="col-sm-9">
+        <span class="badge bg-primary">@Model.Alerta</span>
+    </dd>
+
+    <dt class="col-sm-3">Dispositivo</dt>
+    <dd class="col-sm-9">
+        @(Model.Dispositivo != null ? $"{Model.Dispositivo.Modelo} ({Model.Dispositivo.NumeroSerie})" : "N/D")
+    </dd>
+
+    <dt class="col-sm-3">Paciente</dt>
+    <dd class="col-sm-9">
+        @(Model.Dispositivo?.Paciente != null ? $"{Model.Dispositivo.Paciente.Nombre} {Model.Dispositivo.Paciente.Apellidos}" : "Sin paciente vinculado")
+    </dd>
+</dl>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</div>

@@ -1,0 +1,49 @@
+@model pumpinsulin.Models.Dispositivo
+
+@{
+    ViewData["Title"] = "Editar Dispositivo";
+}
+
+<h2>Editar Dispositivo</h2>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="mb-3">
+                <label asp-for="NumeroSerie" class="form-label">Número de Serie</label>
+                <input asp-for="NumeroSerie" class="form-control" />
+                <span asp-validation-for="NumeroSerie" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Modelo" class="form-label"></label>
+                <input asp-for="Modelo" class="form-control" />
+                <span asp-validation-for="Modelo" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Fabricante" class="form-label"></label>
+                <input asp-for="Fabricante" class="form-control" />
+                <span asp-validation-for="Fabricante" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="FechaActivacion" class="form-label">Fecha de Activación</label>
+                <input asp-for="FechaActivacion" type="date" class="form-control" />
+                <span asp-validation-for="FechaActivacion" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Paciente Asignado</label>
+                <select asp-for="PacienteId" class="form-select" asp-items="ViewBag.PacienteId">
+                    <option value="">-- Sin paciente asignado --</option>
+                </select>
+                <span asp-validation-for="PacienteId" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

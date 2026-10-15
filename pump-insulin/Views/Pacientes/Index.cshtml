@@ -1,0 +1,50 @@
+@model IEnumerable<pumpinsulin.Models.Paciente>
+
+@{
+    ViewData["Title"] = "Pacientes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Listado de Pacientes</h2>
+    <a asp-action="Create" class="btn btn-primary">Nuevo Paciente</a>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>DNI</th>
+            <th>F. Nacimiento</th>
+            <th>Médico Asignado</th>
+            <th>Dispositivo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>@item.Nombre</td>
+            <td>@item.Apellidos</td>
+            <td>@item.Dni</td>
+            <td>@item.FechaNacimiento.ToString("dd/MM/yyyy")</td>
+            <td>@(item.Medico != null ? $"{item.Medico.Nombre} {item.Medico.Apellidos}" : "Sin asignar")</td>
+            <td>
+                @if (item.Dispositivo != null)
+                {
+                    <span class="badge bg-success">@item.Dispositivo.Modelo (@item.Dispositivo.NumeroSerie)</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Sin dispositivo</span>
+                }
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Detalles</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Eliminar</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

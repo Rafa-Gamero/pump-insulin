@@ -1,0 +1,41 @@
+@model pumpinsulin.Models.Medico
+
+@{
+    ViewData["Title"] = "Detalles del Médico";
+}
+
+<h2>Detalles del Médico</h2>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Nombre</dt>
+    <dd class="col-sm-9">@Model.Nombre</dd>
+
+    <dt class="col-sm-3">Apellidos</dt>
+    <dd class="col-sm-9">@Model.Apellidos</dd>
+
+    <dt class="col-sm-3">Especialidad</dt>
+    <dd class="col-sm-9">@Model.Especialidad</dd>
+
+    <dt class="col-sm-3">Teléfono</dt>
+    <dd class="col-sm-9">@Model.Telefono</dd>
+</dl>
+
+<h4>Pacientes a su cargo</h4>
+@if (Model.Pacientes.Any())
+{
+    <ul class="list-group col-md-6 mb-3">
+        @foreach (var p in Model.Pacientes)
+        {
+            <li class="list-group-item">@p.Nombre @p.Apellidos - DNI: @p.Dni</li>
+        }
+    </ul>
+}
+else
+{
+    <p class="text-muted">No tiene pacientes asignados todavía.</p>
+}
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</div>

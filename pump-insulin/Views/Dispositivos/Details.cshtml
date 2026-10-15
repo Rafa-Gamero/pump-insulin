@@ -1,0 +1,61 @@
+@model pumpinsulin.Models.Dispositivo
+
+@{
+    ViewData["Title"] = "Detalles del Dispositivo";
+}
+
+<h2>Detalles del Dispositivo</h2>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Número de Serie</dt>
+    <dd class="col-sm-9">@Model.NumeroSerie</dd>
+
+    <dt class="col-sm-3">Modelo</dt>
+    <dd class="col-sm-9">@Model.Modelo</dd>
+
+    <dt class="col-sm-3">Fabricante</dt>
+    <dd class="col-sm-9">@Model.Fabricante</dd>
+
+    <dt class="col-sm-3">Fecha de Activación</dt>
+    <dd class="col-sm-9">@Model.FechaActivacion.ToString("dd/MM/yyyy")</dd>
+
+    <dt class="col-sm-3">Paciente Asignado</dt>
+    <dd class="col-sm-9">
+        @(Model.Paciente != null ? $"{Model.Paciente.Nombre} {Model.Paciente.Apellidos} (DNI: {Model.Paciente.Dni})" : "Sin paciente vinculado")
+    </dd>
+</dl>
+
+<h4>Lecturas generadas por este dispositivo</h4>
+@if (Model.Lecturas.Any())
+{
+    <table class="table table-sm table-striped col-md-8">
+        <thead>
+            <tr>
+                <th>Fecha/Hora</th>
+                <th>Glucosa (mg/dL)</th>
+                <th>Insulina (U)</th>
+                <th>Estado Alerta</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model.Lecturas.OrderByDescending(x => x.FechaHora))
+            {
+                <tr>
+                    <td>@l.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@l.NivelGlucosaMgDl</td>
+                    <td>@l.InsulinaSuministradaU</td>
+                    <td>@l.Alerta</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">No hay lecturas registradas para este dispositivo.</p>
+}
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</div>

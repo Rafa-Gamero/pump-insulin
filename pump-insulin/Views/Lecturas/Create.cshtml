@@ -1,0 +1,54 @@
+@model pumpinsulin.Models.Lectura
+
+@{
+    ViewData["Title"] = "Crear Lectura";
+}
+
+<h2>Nueva Lectura</h2>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="mb-3">
+                <label asp-for="FechaHora" class="form-label">Fecha y Hora</label>
+                <input asp-for="FechaHora" type="datetime-local" class="form-control" />
+                <span asp-validation-for="FechaHora" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NivelGlucosaMgDl" class="form-label">Nivel de Glucosa (mg/dL)</label>
+                <input asp-for="NivelGlucosaMgDl" type="number" step="0.1" class="form-control" />
+                <span asp-validation-for="NivelGlucosaMgDl" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="InsulinaSuministradaU" class="form-label">Insulina Suministrada (Unidades)</label>
+                <input asp-for="InsulinaSuministradaU" type="number" step="0.1" class="form-control" />
+                <span asp-validation-for="InsulinaSuministradaU" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Alerta" class="form-label">Estado / Alerta</label>
+                <select asp-for="Alerta" class="form-select" asp-items="Html.GetEnumSelectList<pumpinsulin.Models.EstadoAlerta>()"></select>
+                <span asp-validation-for="Alerta" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Dispositivo emisor</label>
+                <select asp-for="DispositivoId" class="form-select" asp-items="ViewBag.DispositivoId">
+                    <option value="">-- Seleccionar Dispositivo --</option>
+                </select>
+                <span asp-validation-for="DispositivoId" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

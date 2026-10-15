@@ -1,0 +1,62 @@
+@model pumpinsulin.Models.Paciente
+
+@{
+    ViewData["Title"] = "Detalles del Paciente";
+}
+
+<h2>Detalles del Paciente</h2>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Nombre</dt>
+    <dd class="col-sm-9">@Model.Nombre</dd>
+
+    <dt class="col-sm-3">Apellidos</dt>
+    <dd class="col-sm-9">@Model.Apellidos</dd>
+
+    <dt class="col-sm-3">DNI</dt>
+    <dd class="col-sm-9">@Model.Dni</dd>
+
+    <dt class="col-sm-3">Fecha de Nacimiento</dt>
+    <dd class="col-sm-9">@Model.FechaNacimiento.ToString("dd/MM/yyyy")</dd>
+
+    <dt class="col-sm-3">Médico Asignado</dt>
+    <dd class="col-sm-9">
+        @(Model.Medico != null ? $"{Model.Medico.Nombre} {Model.Medico.Apellidos} ({Model.Medico.Especialidad})" : "Sin médico asignado")
+    </dd>
+
+    <dt class="col-sm-3">Bomba / Dispositivo</dt>
+    <dd class="col-sm-9">
+        @(Model.Dispositivo != null ? $"{Model.Dispositivo.Modelo} - S/N: {Model.Dispositivo.NumeroSerie}" : "Sin dispositivo vinculado")
+    </dd>
+</dl>
+
+@if (Model.Dispositivo?.Lecturas != null && Model.Dispositivo.Lecturas.Any())
+{
+    <h4>Últimas Lecturas Registradas</h4>
+    <table class="table table-sm table-bordered col-md-8">
+        <thead>
+            <tr>
+                <th>Fecha/Hora</th>
+                <th>Glucosa (mg/dL)</th>
+                <th>Insulina (U)</th>
+                <th>Alerta</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model.Dispositivo.Lecturas.OrderByDescending(x => x.FechaHora).Take(5))
+            {
+                <tr>
+                    <td>@l.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@l.NivelGlucosaMgDl</td>
+                    <td>@l.InsulinaSuministradaU</td>
+                    <td>@l.Alerta</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</div>

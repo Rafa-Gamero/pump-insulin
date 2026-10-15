@@ -1,0 +1,30 @@
+@model pumpinsulin.Models.Dispositivo
+
+@{
+    ViewData["Title"] = "Eliminar Dispositivo";
+}
+
+<h2 class="text-danger">Eliminar Dispositivo</h2>
+<h4>¿Estás seguro de que deseas eliminar este dispositivo?</h4>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Número de Serie</dt>
+    <dd class="col-sm-9">@Model.NumeroSerie</dd>
+
+    <dt class="col-sm-3">Modelo</dt>
+    <dd class="col-sm-9">@Model.Modelo</dd>
+
+    <dt class="col-sm-3">Fabricante</dt>
+    <dd class="col-sm-9">@Model.Fabricante</dd>
+
+    <dt class="col-sm-3">Paciente</dt>
+    <dd class="col-sm-9">
+        @(Model.Paciente != null ? $"{Model.Paciente.Nombre} {Model.Paciente.Apellidos}" : "Sin paciente")
+    </dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Confirmar Eliminación</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
