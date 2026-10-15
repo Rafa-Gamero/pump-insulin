@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using proyecto.Models;
+using pumpinsulin.Models;
 
-namespace proyecto.Data;
+namespace pumpinsulin.Data;
 
 public static class DbInitializer
 {

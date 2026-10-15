@@ -2393,11 +2393,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Casa\\Desktop\\Curso .NET\\pump-insulin\\pump-insulin\\proyecto.csproj",
-      "projectName": "proyecto",
-      "projectPath": "C:\\Users\\Casa\\Desktop\\Curso .NET\\pump-insulin\\pump-insulin\\proyecto.csproj",
+      "projectUniqueName": "c:\\Users\\Casa\\Desktop\\Curso .NET\\pump-insulin\\pump-insulin\\pumpinsulin.csproj",
+      "projectName": "pumpinsulin",
+      "projectPath": "c:\\Users\\Casa\\Desktop\\Curso .NET\\pump-insulin\\pump-insulin\\pumpinsulin.csproj",
       "packagesPath": "C:\\Users\\Casa\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Casa\\Desktop\\Curso .NET\\pump-insulin\\pump-insulin\\obj\\",
+      "outputPath": "c:\\Users\\Casa\\Desktop\\Curso .NET\\pump-insulin\\pump-insulin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Casa\\AppData\\Roaming\\NuGet\\NuGet.Config"
