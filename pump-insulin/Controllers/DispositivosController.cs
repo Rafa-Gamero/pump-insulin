@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using pumpinsulin.Data;
 using pumpinsulin.Models;
 
 namespace pumpinsulin.Controllers;
 
+[Authorize(Roles = "Medico")]
 public class DispositivosController : Controller
 {
     private readonly ApplicationDbContext _context;

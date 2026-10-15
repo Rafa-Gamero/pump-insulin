@@ -87,11 +87,19 @@ namespace pumpinsulin.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Especialidad")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -118,13 +126,21 @@ namespace pumpinsulin.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("FechaNacimiento")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("MedicoId")
+                    b.Property<int?>("MedicoId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -159,9 +175,7 @@ namespace pumpinsulin.Migrations
                 {
                     b.HasOne("pumpinsulin.Models.Medico", "Medico")
                         .WithMany("Pacientes")
-                        .HasForeignKey("MedicoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MedicoId");
 
                     b.Navigation("Medico");
                 });

@@ -8,6 +8,9 @@ public class Medico
     public string Especialidad { get; set; } = "Endocrinología";
     public string Telefono { get; set; } = string.Empty;
 
-    // Relación: Un médico tiene varios pacientes
+    // Credenciales de acceso
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+
     public List<Paciente> Pacientes { get; set; } = new();
 }

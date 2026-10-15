@@ -3,8 +3,8 @@ namespace pumpinsulin.Models;
 public enum EstadoAlerta
 {
     Normal,
-    HipoglucemiaLeve,
-    HipoglucemiaSevera,
+    Hipoglucemia,
+   
     Hiperglucemia,
     OclusionCateter
 }

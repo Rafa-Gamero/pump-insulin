@@ -1,8 +1,110 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Bienvenido a PumpInsulin";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row align-items-center justify-content-center min-vh-75 py-4">
+    <!-- Columna izquierda: Presentación visual e información del sistema -->
+    <div class="col-lg-6 mb-4 mb-lg-0 pe-lg-4">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+            Plataforma Médica de Monitorización Continua
+        </span>
+        <h1 class="display-4 fw-bold text-dark lh-sm mb-3">
+            Control inteligente de <span class="text-primary">Bombas de Insulina</span>
+        </h1>
+        <p class="lead text-muted mb-4">
+            Gestión integral de dispositivos, registro de lecturas glucémicas en tiempo real e importación automatizada de datos clínicos para pacientes y personal médico.
+        </p>
+
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <div class="p-3 border rounded-3 bg-light h-100">
+                    <h6 class="fw-bold mb-1 text-primary">Para Médicos</h6>
+                    <p class="small text-muted mb-0">Asignación de bombas, supervisión de pacientes y análisis de alertas clínicas.</p>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="p-3 border rounded-3 bg-light h-100">
+                    <h6 class="fw-bold mb-1 text-success">Para Pacientes</h6>
+                    <p class="small text-muted mb-0">Carga rápida de lecturas manuales o importación directa mediante archivos CSV.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna derecha: Tarjeta centralizada de Inicio de Sesión / Acceso directo -->
+    <div class="col-md-8 col-lg-5 col-xl-4">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <!-- Si ya está autenticado -->
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex p-3 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-check-fill" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M15.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L12.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                            <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                        </svg>
+                    </div>
+                    <h4 class="card-title fw-bold">Sesión Activa</h4>
+                    <p class="text-muted">Conectado como <strong>@User.Identity.Name</strong></p>
+                    <span class="badge bg-secondary mb-4 px-3 py-2">@(User.IsInRole("Medico") ? "Médico Especialista" : "Paciente")</span>
+
+                    <div class="d-grid gap-2">
+                        @if (User.IsInRole("Medico"))
+                        {
+                            <a asp-controller="Pacientes" asp-action="Index" class="btn btn-primary py-2 fw-semibold">Panel de Pacientes</a>
+                            <a asp-controller="Dispositivos" asp-action="Index" class="btn btn-outline-primary py-2">Gestión de Dispositivos</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Lecturas" asp-action="Index" class="btn btn-primary py-2 fw-semibold">Ver Mis Lecturas</a>
+                            <a asp-controller="Lecturas" asp-action="SubirArchivo" class="btn btn-success py-2">Subir Archivo CSV</a>
+                        }
+                        <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-danger btn-sm mt-2">Cerrar Sesión</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Formulario de Inicio de Sesión en el centro -->
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 pb-0 text-center">
+                    <h4 class="fw-bold mb-1">Acceso a la Plataforma</h4>
+                    <p class="text-muted small">Introduce tus credenciales para continuar</p>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-controller="Account" asp-action="Login" method="post">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Tipo de Usuario</label>
+                            <select name="Rol" class="form-select">
+                                <option value="Paciente">Paciente</option>
+                                <option value="Medico">Médico</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Correo Electrónico</label>
+                            <input name="Email" type="email" class="form-control" placeholder="nombre@correo.com" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Contraseña</label>
+                            <input name="Password" type="password" class="form-control" placeholder="••••••••" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-2">
+                            Iniciar Sesión
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-3 pt-3 border-top">
+                        <span class="text-muted small">¿Aún no tienes cuenta?</span><br />
+                        <a asp-controller="Account" asp-action="Register" class="fw-semibold text-decoration-none">
+                            Registrarse como Médico o Paciente
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>

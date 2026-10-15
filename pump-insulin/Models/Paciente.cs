@@ -8,7 +8,11 @@ public class Paciente
     public DateTime FechaNacimiento { get; set; }
     public string Dni { get; set; } = string.Empty;
 
-    public int MedicoId { get; set; }
+    // Credenciales de acceso
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+
+    public int? MedicoId { get; set; }
     public Medico? Medico { get; set; }
 
     public Dispositivo? Dispositivo { get; set; }

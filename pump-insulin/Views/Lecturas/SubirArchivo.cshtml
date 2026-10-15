@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Importar Lecturas desde Archivo";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h4>Importar Archivo de Bomba / Sensor</h4>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <p class="text-muted">
+                    Sube un archivo en formato <strong>.csv</strong> con la estructura:<br />
+                    <code>FechaHora,Glucosa,Insulina,Alerta</code><br />
+                    <em>Ejemplo: 2026-10-15 08:30,115,1.5,Normal</em>
+                </p>
+
+                <form asp-action="SubirArchivo" enctype="multipart/form-data" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Seleccionar archivo CSV</label>
+                        <input type="file" name="archivo" class="form-control" accept=".csv, .txt" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Procesar e Importar</button>
+                    <a asp-action="Index" class="btn btn-secondary w-100 mt-2">Volver</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

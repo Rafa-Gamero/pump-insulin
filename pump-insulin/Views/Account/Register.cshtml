@@ -1,0 +1,84 @@
+@model pumpinsulin.Models.RegistroViewModel
+@{ ViewData["Title"] = "Registro"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white text-center">
+                <h4>Crear Cuenta</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Register">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Quiero registrarme como:</label>
+                        <select asp-for="Rol" id="rolSelect" class="form-select" onchange="toggleCampos()">
+                            <option value="Paciente">Paciente</option>
+                            <option value="Medico">Médico</option>
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Nombre" class="form-label">Nombre</label>
+                            <input asp-for="Nombre" class="form-control" required />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Apellidos" class="form-label">Apellidos</label>
+                            <input asp-for="Apellidos" class="form-control" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" class="form-control" type="email" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Contraseña</label>
+                        <input asp-for="Password" class="form-control" type="password" required />
+                    </div>
+
+                    <!-- Campos exclusivos de Paciente -->
+                    <div id="seccionPaciente">
+                        <div class="mb-3">
+                            <label class="form-label">DNI</label>
+                            <input asp-for="Dni" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha de Nacimiento</label>
+                            <input asp-for="FechaNacimiento" type="date" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Seleccionar Endocrino</label>
+                            <select asp-for="MedicoId" class="form-select" asp-items="ViewBag.Medicos">
+                                <option value="">-- Sin asignar por ahora --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campos exclusivos de Médico -->
+                    <div id="seccionMedico" style="display:none;">
+                        <div class="mb-3">
+                            <label class="form-label">Especialidad</label>
+                            <input asp-for="Especialidad" class="form-control" value="Endocrinología" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono de contacto</label>
+                            <input asp-for="Telefono" class="form-control" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100 mt-2">Registrarse</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleCampos() {
+        var rol = document.getElementById("rolSelect").value;
+        document.getElementById("seccionPaciente").style.display = (rol === "Paciente") ? "block" : "none";
+        document.getElementById("seccionMedico").style.display = (rol === "Medico") ? "block" : "none";
+    }
+</script>

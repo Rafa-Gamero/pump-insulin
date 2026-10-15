@@ -1,51 +1,60 @@
 @model pumpinsulin.Models.Lectura
 
 @{
-    ViewData["Title"] = "Crear Lectura";
+    ViewData["Title"] = "Registrar Lectura";
 }
 
-<h2>Nueva Lectura</h2>
-<hr />
-<div class="row">
+<div class="row justify-content-center">
     <div class="col-md-6">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
-            <div class="mb-3">
-                <label asp-for="FechaHora" class="form-label">Fecha y Hora</label>
-                <input asp-for="FechaHora" type="datetime-local" class="form-control" />
-                <span asp-validation-for="FechaHora" class="text-danger"></span>
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0">Añadir Lectura Individual</h4>
             </div>
+            <div class="card-body p-4">
+                <div class="alert alert-light border mb-4">
+                    <small class="text-muted d-block">Dispositivo vinculado:</small>
+                    <strong>@ViewBag.DispositivoInfo</strong>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="NivelGlucosaMgDl" class="form-label">Nivel de Glucosa (mg/dL)</label>
-                <input asp-for="NivelGlucosaMgDl" type="number" step="0.1" class="form-control" />
-                <span asp-validation-for="NivelGlucosaMgDl" class="text-danger"></span>
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <input type="hidden" asp-for="DispositivoId" />
+
+                    <div class="mb-3">
+                        <label asp-for="FechaHora" class="form-label fw-semibold">Fecha y Hora</label>
+                        <input asp-for="FechaHora" type="datetime-local" class="form-control" required />
+                        <span asp-validation-for="FechaHora" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NivelGlucosaMgDl" class="form-label fw-semibold">Nivel de Glucosa (mg/dL)</label>
+                        <div class="input-group">
+                            <input asp-for="NivelGlucosaMgDl" type="number" step="0.1" class="form-control form-control-lg" placeholder="Ej: 110" required />
+                            <span class="input-group-text fw-bold">mg/dL</span>
+                        </div>
+                        <span asp-validation-for="NivelGlucosaMgDl" class="text-danger small"></span>
+                        <div class="form-text text-muted">
+                            El sistema detectará automáticamente alertas si el valor es ≤ 65 (Hipoglucemia) o ≥ 200 (Hiperglucemia).
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="InsulinaSuministradaU" class="form-label fw-semibold">Insulina Suministrada (Unidades)</label>
+                        <div class="input-group">
+                            <input asp-for="InsulinaSuministradaU" type="number" step="0.1" class="form-control" placeholder="Ej: 2.0" required />
+                            <span class="input-group-text">U</span>
+                        </div>
+                        <span asp-validation-for="InsulinaSuministradaU" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success py-2 fw-semibold">Registrar Lectura</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="InsulinaSuministradaU" class="form-label">Insulina Suministrada (Unidades)</label>
-                <input asp-for="InsulinaSuministradaU" type="number" step="0.1" class="form-control" />
-                <span asp-validation-for="InsulinaSuministradaU" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="Alerta" class="form-label">Estado / Alerta</label>
-                <select asp-for="Alerta" class="form-select" asp-items="Html.GetEnumSelectList<pumpinsulin.Models.EstadoAlerta>()"></select>
-                <span asp-validation-for="Alerta" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Dispositivo emisor</label>
-                <select asp-for="DispositivoId" class="form-select" asp-items="ViewBag.DispositivoId">
-                    <option value="">-- Seleccionar Dispositivo --</option>
-                </select>
-                <span asp-validation-for="DispositivoId" class="text-danger"></span>
-            </div>
-
-            <button type="submit" class="btn btn-success">Guardar</button>
-            <a asp-action="Index" class="btn btn-secondary">Volver</a>
-        </form>
+        </div>
     </div>
 </div>
 

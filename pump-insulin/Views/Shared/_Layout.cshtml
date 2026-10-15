@@ -23,21 +23,56 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Pacientes" asp-action="Index">Pacientes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Medicos" asp-action="Index">Médicos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Dispositivos" asp-action="Index">Dispositivos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Lecturas" asp-action="Index">Lecturas</a>
-                        </li>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (User.IsInRole("Medico"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Pacientes" asp-action="Index">Pacientes</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Dispositivos" asp-action="Index">Dispositivos</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Lecturas" asp-action="Index">Lecturas Globales</a>
+                                </li>
+                            }
+                            else if (User.IsInRole("Paciente"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Lecturas" asp-action="Index">Mis Lecturas</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" asp-area="" asp-controller="Lecturas" asp-action="SubirArchivo">Importar CSV</a>
+                                </li>
+                            }
+                        }
+
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
                         </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item d-flex align-items-center me-2">
+                                <span class="badge bg-secondary">@User.Identity.Name (@(User.IsInRole("Medico") ? "Médico" : "Paciente"))</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-danger btn-sm" asp-area="" asp-controller="Account" asp-action="Logout">Cerrar Sesión</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item me-2">
+                                <a class="btn btn-outline-primary btn-sm" asp-area="" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-primary btn-sm" asp-area="" asp-controller="Account" asp-action="Register">Registrarse</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
