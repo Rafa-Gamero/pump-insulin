@@ -2,31 +2,34 @@
     ViewData["Title"] = "Importar Lecturas desde Archivo";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-info text-white">
-                <h4>Importar Archivo de Bomba / Sensor</h4>
+<div class="row justify-content-center py-4">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-info text-white py-3">
+                <h4 class="mb-0">📁 Importar Archivo de Bomba / Sensor</h4>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 @if (ViewBag.Error != null)
                 {
-                    <div class="alert alert-danger">@ViewBag.Error</div>
+                    <div class="alert alert-danger mb-4">@ViewBag.Error</div>
                 }
 
-                <p class="text-muted">
-                    Sube un archivo en formato <strong>.csv</strong> con la estructura:<br />
-                    <code>FechaHora,Glucosa,Insulina,Alerta</code><br />
-                    <em>Ejemplo: 2026-10-15 08:30,115,1.5,Normal</em>
-                </p>
+                <div class="alert alert-light border mb-4">
+                    <h6 class="fw-bold mb-2">Formato esperado (.csv):</h6>
+                    <code class="d-block mb-2">FechaHora,Glucosa,Insulina,Hidratos,Ratio</code>
+                    <small class="text-muted">
+                        Ejemplo: <code>2026-10-15 08:30,115,3.5,40,1.2</code>
+                    </small>
+                </div>
 
-                <form asp-action="SubirArchivo" enctype="multipart/form-data" method="post">
-                    <div class="mb-3">
-                        <label class="form-label">Seleccionar archivo CSV</label>
-                        <input type="file" name="archivo" class="form-control" accept=".csv, .txt" required />
+                <form asp-controller="Lecturas" asp-action="SubirArchivo" enctype="multipart/form-data" method="post">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Seleccionar archivo CSV</label>
+                        <input type="file" name="archivo" class="form-control form-control-lg" accept=".csv, .txt" required />
+                        <div class="form-text">Puedes subir el archivo descargado <code>lecturas_semana_completa.csv</code>.</div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Procesar e Importar</button>
-                    <a asp-action="Index" class="btn btn-secondary w-100 mt-2">Volver</a>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Procesar e Importar</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">Volver</a>
                 </form>
             </div>
         </div>

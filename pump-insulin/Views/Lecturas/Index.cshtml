@@ -4,7 +4,6 @@
     ViewData["Title"] = "Historial de Lecturas";
 }
 
-<!-- Avisos automáticos tras registrar una lectura (Normal / Hipoglucemia / Hiperglucemia) -->
 @if (TempData["Aviso"] != null)
 {
     <div class="alert alert-@TempData["TipoAviso"] alert-dismissible fade show fw-semibold fs-5 text-center shadow-sm mb-4" role="alert">
@@ -13,33 +12,19 @@
     </div>
 }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
-        @TempData["Error"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-    </div>
-}
-
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
         <h2 class="fw-bold mb-1">Registro de Lecturas</h2>
-        <p class="text-muted small mb-0">Control glucémico, administración de insulina y eventos de alerta</p>
+        <p class="text-muted small mb-0">Control glucémico, insulina, hidratos de carbono y ratios</p>
     </div>
     
     <div class="btn-toolbar gap-2" role="toolbar">
-        <a asp-action="Grafico" class="btn btn-outline-info">
-            📊 Ver Gráfico
-        </a>
+        <a asp-action="Grafico" class="btn btn-outline-info">📊 Ver Gráfico</a>
         
         @if (User.IsInRole("Paciente"))
         {
-            <a asp-action="Create" class="btn btn-primary">
-                + Nueva Lectura
-            </a>
-            <a asp-action="SubirArchivo" class="btn btn-success">
-                📁 Importar CSV
-            </a>
+            <a asp-action="Create" class="btn btn-primary">+ Nueva Lectura</a>
+            <a asp-action="SubirArchivo" class="btn btn-success">📁 Importar CSV</a>
         }
     </div>
 </div>
@@ -52,6 +37,8 @@
                     <th>Fecha y Hora</th>
                     <th>Glucosa</th>
                     <th>Insulina</th>
+                    <th>Hidratos (g)</th>
+                    <th>Ratio</th>
                     <th>Estado / Alerta</th>
                     <th>Dispositivo</th>
                     @if (User.IsInRole("Medico"))
@@ -65,7 +52,7 @@
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="@(User.IsInRole("Medico") ? 7 : 6)" class="text-center py-4 text-muted">
+                        <td colspan="@(User.IsInRole("Medico") ? 9 : 8)" class="text-center py-4 text-muted">
                             No hay lecturas registradas todavía.
                         </td>
                     </tr>
@@ -75,38 +62,32 @@
                     @foreach (var item in Model) {
                         <tr>
                             <td>@item.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><strong>@item.NivelGlucosaMgDl</strong> <span class="small text-muted">mg/dL</span></td>
+                            <td>@item.InsulinaSuministradaU <span class="small text-muted">U</span></td>
+                            <td>@(item.HidratosCarbonoG.HasValue ? $"{item.HidratosCarbonoG.Value} g" : "-")</td>
+                            <td>@(item.RatioInsulina.HasValue ? item.RatioInsulina.Value.ToString("0.00") : "-")</td>
                             <td>
-                                <strong>@item.NivelGlucosaMgDl</strong> <span class="small text-muted">mg/dL</span>
-                            </td>
-                            <td>
-                                @item.InsulinaSuministradaU <span class="small text-muted">U</span>
-                            </td>
-                            <td>
-                                @switch (item.Alerta)
+                                @switch (item.EstadoAlerta)
                                 {
                                     case pumpinsulin.Models.EstadoAlerta.Normal:
                                         <span class="badge bg-success">Normal</span>
                                         break;
                                     case pumpinsulin.Models.EstadoAlerta.Hipoglucemia:
-                                   
-                                        <span class="badge bg-danger">@item.Alerta</span>
+                                    
+                                        <span class="badge bg-danger">@item.EstadoAlerta</span>
                                         break;
                                     case pumpinsulin.Models.EstadoAlerta.Hiperglucemia:
                                         <span class="badge bg-warning text-dark">Hiperglucemia</span>
                                         break;
                                     default:
-                                        <span class="badge bg-secondary">@item.Alerta</span>
+                                        <span class="badge bg-secondary">@item.EstadoAlerta</span>
                                         break;
                                 }
                             </td>
-                            <td>
-                                @(item.Dispositivo != null ? $"{item.Dispositivo.Modelo} ({item.Dispositivo.NumeroSerie})" : "N/D")
-                            </td>
+                            <td>@(item.Dispositivo != null ? $"{item.Dispositivo.Modelo} ({item.Dispositivo.NumeroSerie})" : "N/D")</td>
                             @if (User.IsInRole("Medico"))
                             {
-                                <td>
-                                    @(item.Dispositivo?.Paciente != null ? $"{item.Dispositivo.Paciente.Nombre} {item.Dispositivo.Paciente.Apellidos}" : "Sin paciente")
-                                </td>
+                                <td>@(item.Dispositivo?.Paciente != null ? $"{item.Dispositivo.Paciente.Nombre} {item.Dispositivo.Paciente.Apellidos}" : "Sin paciente")</td>
                             }
                             <td class="text-end pe-3">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white">Detalles</a>

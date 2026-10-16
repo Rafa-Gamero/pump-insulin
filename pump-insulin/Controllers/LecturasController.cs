@@ -20,7 +20,6 @@ public class LecturasController : Controller
     }
 
     // GET: Lecturas
-    // El paciente solo ve sus lecturas; el médico ve todas con la información del paciente
     public async Task<IActionResult> Index()
     {
         var query = _context.Lecturas
@@ -50,7 +49,6 @@ public class LecturasController : Controller
 
         if (lectura == null) return NotFound();
 
-        // Si es un paciente, asegurarse de que la lectura pertenezca a su dispositivo
         if (User.IsInRole("Paciente"))
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -63,7 +61,7 @@ public class LecturasController : Controller
         return View(lectura);
     }
 
-    // GET: Lecturas/Create (Registro individual para el paciente)
+    // GET: Lecturas/Create (Registro individual)
     [Authorize(Roles = "Paciente")]
     public async Task<IActionResult> Create()
     {
@@ -86,61 +84,61 @@ public class LecturasController : Controller
     }
 
     // POST: Lecturas/Create
-[HttpPost]
-[Authorize(Roles = "Paciente")]
-public async Task<IActionResult> Create(Lectura lectura)
-{
-    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-    var dispositivo = await _context.Dispositivos.FirstOrDefaultAsync(d => d.PacienteId == userId);
-
-    if (dispositivo == null)
+    [HttpPost]
+    [Authorize(Roles = "Paciente")]
+    public async Task<IActionResult> Create(Lectura lectura)
     {
-        TempData["Error"] = "No se encontró ningún dispositivo asignado a tu cuenta.";
-        return RedirectToAction(nameof(Index));
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var dispositivo = await _context.Dispositivos.FirstOrDefaultAsync(d => d.PacienteId == userId);
+
+        if (dispositivo == null)
+        {
+            TempData["Error"] = "No se encontró ningún dispositivo asignado a tu cuenta.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        lectura.DispositivoId = dispositivo.Id;
+
+        // Clasificación automática de alerta médica
+        if (lectura.NivelGlucosaMgDl <= 65)
+        {
+            lectura.EstadoAlerta = EstadoAlerta.Hipoglucemia;
+            TempData["Aviso"] = $"⚠️ ¡ATENCIÓN! Se ha detectado HIPOGLUCEMIA ({lectura.NivelGlucosaMgDl} mg/dL). Toma hidratos de absorción rápida y consulta con tu médico.";
+            TempData["TipoAviso"] = "danger";
+        }
+        else if (lectura.NivelGlucosaMgDl >= 200)
+        {
+            lectura.EstadoAlerta = EstadoAlerta.Hiperglucemia;
+            TempData["Aviso"] = $"⚠️ ¡ATENCIÓN! Se ha detectado HIPERGLUCEMIA ({lectura.NivelGlucosaMgDl} mg/dL). Revisa la dosis de insulina/bomba y el aporte hídrico.";
+            TempData["TipoAviso"] = "warning";
+        }
+        else
+        {
+            lectura.EstadoAlerta = EstadoAlerta.Normal;
+            TempData["Aviso"] = $"Nivel de glucosa normal ({lectura.NivelGlucosaMgDl} mg/dL). Lectura guardada correctamente.";
+            TempData["TipoAviso"] = "success";
+        }
+
+        if (ModelState.IsValid)
+        {
+            _context.Lecturas.Add(lectura);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        ViewBag.DispositivoInfo = $"{dispositivo.Modelo} (S/N: {dispositivo.NumeroSerie})";
+        return View(lectura);
     }
 
-    // Vincula automáticamente el dispositivo
-    lectura.DispositivoId = dispositivo.Id;
-
-    // Clasificación automática según los umbrales clínicos
-    if (lectura.NivelGlucosaMgDl <= 65)
-    {
-        lectura.Alerta = EstadoAlerta.Hipoglucemia;
-        TempData["Aviso"] = $"⚠️ ¡ATENCIÓN! Se ha detectado HIPOGLUCEMIA ({lectura.NivelGlucosaMgDl} mg/dL). Toma hidratos de absorción rápida y consulta con tu médico.";
-        TempData["TipoAviso"] = "danger"; // Rojo
-    }
-    else if (lectura.NivelGlucosaMgDl >= 200)
-    {
-        lectura.Alerta = EstadoAlerta.Hiperglucemia;
-        TempData["Aviso"] = $"⚠️ ¡ATENCIÓN! Se ha detectado HIPERGLUCEMIA ({lectura.NivelGlucosaMgDl} mg/dL). Revisa la dosis de insulina/bomba y el aporte hídrico.";
-        TempData["TipoAviso"] = "warning"; // Amarillo / Naranja
-    }
-    else
-    {
-        lectura.Alerta = EstadoAlerta.Normal;
-        TempData["Aviso"] = $"Nivel de glucosa normal ({lectura.NivelGlucosaMgDl} mg/dL). Lectura guardada correctamente.";
-        TempData["TipoAviso"] = "success"; // Verde
-    }
-
-    if (ModelState.IsValid)
-    {
-        _context.Lecturas.Add(lectura);
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    ViewBag.DispositivoInfo = $"{dispositivo.Modelo} (S/N: {dispositivo.NumeroSerie})";
-    return View(lectura);
-}
-
-    // GET: Lecturas/SubirArchivo (Carga masiva por archivo para el paciente)
+    // --- ACCIÓN GET AÑADIDA: Permite abrir la página para subir el archivo ---
+    [HttpGet]
     [Authorize(Roles = "Paciente")]
     public IActionResult SubirArchivo()
     {
         return View();
     }
 
-    // POST: Lecturas/SubirArchivo
+    // POST: Lecturas/SubirArchivo (Procesamiento del CSV)
     [HttpPost]
     [Authorize(Roles = "Paciente")]
     public async Task<IActionResult> SubirArchivo(IFormFile archivo)
@@ -171,7 +169,6 @@ public async Task<IActionResult> Create(Lectura lectura)
             {
                 if (string.IsNullOrWhiteSpace(linea)) continue;
 
-                // Saltar cabecera si incluye nombres de columnas
                 if (esPrimeraLinea)
                 {
                     esPrimeraLinea = false;
@@ -182,7 +179,6 @@ public async Task<IActionResult> Create(Lectura lectura)
                     }
                 }
 
-                // Formato esperado: FechaHora,Glucosa,Insulina,Alerta(opcional)
                 var partes = linea.Split(',');
                 if (partes.Length >= 3)
                 {
@@ -190,23 +186,30 @@ public async Task<IActionResult> Create(Lectura lectura)
                         double.TryParse(partes[1].Trim(), CultureInfo.InvariantCulture, out var glucosa) &&
                         double.TryParse(partes[2].Trim(), CultureInfo.InvariantCulture, out var insulina))
                     {
+                        double? hidratos = null;
+                        if (partes.Length >= 4 && double.TryParse(partes[3].Trim(), CultureInfo.InvariantCulture, out var h))
+                        {
+                            hidratos = h;
+                        }
+
+                        double? ratio = null;
+                        if (partes.Length >= 5 && double.TryParse(partes[4].Trim(), CultureInfo.InvariantCulture, out var r))
+                        {
+                            ratio = r;
+                        }
+
                         var alerta = EstadoAlerta.Normal;
-                        if (partes.Length >= 4 && Enum.TryParse<EstadoAlerta>(partes[3].Trim(), true, out var parsedAlerta))
-                        {
-                            alerta = parsedAlerta;
-                        }
-                        else
-                        {
-                            if (glucosa < 70) alerta = EstadoAlerta.Hipoglucemia;
-                            else if (glucosa > 180) alerta = EstadoAlerta.Hiperglucemia;
-                        }
+                        if (glucosa <= 65) alerta = EstadoAlerta.Hipoglucemia;
+                        else if (glucosa >= 200) alerta = EstadoAlerta.Hiperglucemia;
 
                         nuevasLecturas.Add(new Lectura
                         {
                             FechaHora = fecha,
                             NivelGlucosaMgDl = glucosa,
                             InsulinaSuministradaU = insulina,
-                            Alerta = alerta,
+                            HidratosCarbonoG = hidratos,
+                            RatioInsulina = ratio,
+                            EstadoAlerta = alerta,
                             DispositivoId = dispositivo.Id
                         });
                     }
@@ -218,10 +221,12 @@ public async Task<IActionResult> Create(Lectura lectura)
         {
             _context.Lecturas.AddRange(nuevasLecturas);
             await _context.SaveChangesAsync();
+            TempData["Aviso"] = $"Se han importado {nuevasLecturas.Count} lecturas correctamente.";
+            TempData["TipoAviso"] = "success";
             return RedirectToAction(nameof(Index));
         }
 
-        ViewBag.Error = "No se pudo procesar ninguna lectura del archivo. Comprueba que el formato coincida con: FechaHora,Glucosa,Insulina";
+        ViewBag.Error = "No se pudieron procesar las líneas del archivo. Comprueba el formato esperado: FechaHora,Glucosa,Insulina,Hidratos,Ratio";
         return View();
     }
 
@@ -236,7 +241,6 @@ public async Task<IActionResult> Create(Lectura lectura)
 
         if (lectura == null) return NotFound();
 
-        // Control de permisos sobre la eliminación
         if (User.IsInRole("Paciente"))
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -248,35 +252,6 @@ public async Task<IActionResult> Create(Lectura lectura)
 
         return View(lectura);
     }
-
-    // GET: Lecturas/Grafico
-[Authorize]
-public async Task<IActionResult> Grafico(int? pacienteId)
-{
-    var query = _context.Lecturas
-        .Include(l => l.Dispositivo)
-            .ThenInclude(d => d!.Paciente)
-        .AsQueryable();
-
-    if (User.IsInRole("Paciente"))
-    {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        query = query.Where(l => l.Dispositivo != null && l.Dispositivo.PacienteId == userId);
-    }
-    else if (User.IsInRole("Medico") && pacienteId.HasValue)
-    {
-        // Si el médico quiere ver el gráfico de un paciente en concreto
-        query = query.Where(l => l.Dispositivo != null && l.Dispositivo.PacienteId == pacienteId.Value);
-        ViewBag.PacienteSeleccionado = await _context.Pacientes.FindAsync(pacienteId.Value);
-    }
-
-    // Orden cronológico ascendente para que la gráfica vaya de izquierda a derecha en el tiempo
-    var lecturas = await query
-        .OrderBy(l => l.FechaHora)
-        .ToListAsync();
-
-    return View(lecturas);
-}
 
     // POST: Lecturas/Delete/5
     [HttpPost, ActionName("Delete")]
@@ -302,5 +277,32 @@ public async Task<IActionResult> Grafico(int? pacienteId)
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    // GET: Lecturas/Grafico
+    [Authorize]
+    public async Task<IActionResult> Grafico(int? pacienteId)
+    {
+        var query = _context.Lecturas
+            .Include(l => l.Dispositivo)
+                .ThenInclude(d => d!.Paciente)
+            .AsQueryable();
+
+        if (User.IsInRole("Paciente"))
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            query = query.Where(l => l.Dispositivo != null && l.Dispositivo.PacienteId == userId);
+        }
+        else if (User.IsInRole("Medico") && pacienteId.HasValue)
+        {
+            query = query.Where(l => l.Dispositivo != null && l.Dispositivo.PacienteId == pacienteId.Value);
+            ViewBag.PacienteSeleccionado = await _context.Pacientes.FindAsync(pacienteId.Value);
+        }
+
+        var lecturas = await query
+            .OrderBy(l => l.FechaHora)
+            .ToListAsync();
+
+        return View(lecturas);
     }
 }

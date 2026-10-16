@@ -55,19 +55,25 @@ namespace pumpinsulin.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Alerta")
+                    b.Property<int>("DispositivoId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("DispositivoId")
+                    b.Property<int>("EstadoAlerta")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("FechaHora")
                         .HasColumnType("TEXT");
 
+                    b.Property<double?>("HidratosCarbonoG")
+                        .HasColumnType("REAL");
+
                     b.Property<double>("InsulinaSuministradaU")
                         .HasColumnType("REAL");
 
                     b.Property<double>("NivelGlucosaMgDl")
+                        .HasColumnType("REAL");
+
+                    b.Property<double?>("RatioInsulina")
                         .HasColumnType("REAL");
 
                     b.HasKey("Id");

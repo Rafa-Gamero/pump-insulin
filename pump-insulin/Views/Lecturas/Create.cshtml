@@ -1,11 +1,11 @@
 @model pumpinsulin.Models.Lectura
 
 @{
-    ViewData["Title"] = "Registrar Lectura";
+    ViewData["Title"] = "Registrar Lectura Manual";
 }
 
 <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-7">
         <div class="card shadow-sm border-0 rounded-3">
             <div class="card-header bg-primary text-white py-3">
                 <h4 class="mb-0">Añadir Lectura Individual</h4>
@@ -18,7 +18,6 @@
 
                 <form asp-action="Create" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
                     <input type="hidden" asp-for="DispositivoId" />
 
                     <div class="mb-3">
@@ -27,29 +26,52 @@
                         <span asp-validation-for="FechaHora" class="text-danger small"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="NivelGlucosaMgDl" class="form-label fw-semibold">Nivel de Glucosa (mg/dL)</label>
-                        <div class="input-group">
-                            <input asp-for="NivelGlucosaMgDl" type="number" step="0.1" class="form-control form-control-lg" placeholder="Ej: 110" required />
-                            <span class="input-group-text fw-bold">mg/dL</span>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NivelGlucosaMgDl" class="form-label fw-semibold">Glucemia (mg/dL)</label>
+                            <div class="input-group">
+                                <input asp-for="NivelGlucosaMgDl" type="number" step="0.1" class="form-control form-control-lg" placeholder="Ej: 110" required />
+                                <span class="input-group-text fw-bold">mg/dL</span>
+                            </div>
+                            <span asp-validation-for="NivelGlucosaMgDl" class="text-danger small"></span>
                         </div>
-                        <span asp-validation-for="NivelGlucosaMgDl" class="text-danger small"></span>
-                        <div class="form-text text-muted">
-                            El sistema detectará automáticamente alertas si el valor es ≤ 65 (Hipoglucemia) o ≥ 200 (Hiperglucemia).
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="InsulinaSuministradaU" class="form-label fw-semibold">Insulina Suministrada (U)</label>
+                            <div class="input-group">
+                                <input asp-for="InsulinaSuministradaU" type="number" step="0.1" class="form-control form-control-lg" placeholder="Ej: 2.5" required />
+                                <span class="input-group-text fw-bold">U</span>
+                            </div>
+                            <span asp-validation-for="InsulinaSuministradaU" class="text-danger small"></span>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label asp-for="InsulinaSuministradaU" class="form-label fw-semibold">Insulina Suministrada (Unidades)</label>
-                        <div class="input-group">
-                            <input asp-for="InsulinaSuministradaU" type="number" step="0.1" class="form-control" placeholder="Ej: 2.0" required />
-                            <span class="input-group-text">U</span>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="HidratosCarbonoG" class="form-label fw-semibold">Hidratos de Carbono (Opcional)</label>
+                            <div class="input-group">
+                                <input asp-for="HidratosCarbonoG" type="number" step="0.1" class="form-control" placeholder="Ej: 45" />
+                                <span class="input-group-text">g</span>
+                            </div>
+                            <span asp-validation-for="HidratosCarbonoG" class="text-danger small"></span>
+                            <div class="form-text">Gramos de HC consumidos.</div>
                         </div>
-                        <span asp-validation-for="InsulinaSuministradaU" class="text-danger small"></span>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="RatioInsulina" class="form-label fw-semibold">Ratio de Insulina (Opcional)</label>
+                            <div class="input-group">
+                                <input asp-for="RatioInsulina" type="number" step="0.01" class="form-control" placeholder="Ej: 1.2" />
+                                <span class="input-group-text">U/ración</span>
+                            </div>
+                            <span asp-validation-for="RatioInsulina" class="text-danger small"></span>
+                            <div class="form-text">Ratio aplicada para la comida.</div>
+                        </div>
                     </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success py-2 fw-semibold">Registrar Lectura</button>
+                    <div class="alert alert-secondary small mt-2">
+                        💡 <strong>Alerta automática:</strong> el sistema marcará alerta si el valor es ≤ 65 (Hipoglucemia) o ≥ 200 (Hiperglucemia).
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success py-2 fw-semibold">Guardar Lectura</button>
                         <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
                     </div>
                 </form>
