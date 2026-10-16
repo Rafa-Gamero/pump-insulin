@@ -249,6 +249,35 @@ public async Task<IActionResult> Create(Lectura lectura)
         return View(lectura);
     }
 
+    // GET: Lecturas/Grafico
+[Authorize]
+public async Task<IActionResult> Grafico(int? pacienteId)
+{
+    var query = _context.Lecturas
+        .Include(l => l.Dispositivo)
+            .ThenInclude(d => d!.Paciente)
+        .AsQueryable();
+
+    if (User.IsInRole("Paciente"))
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        query = query.Where(l => l.Dispositivo != null && l.Dispositivo.PacienteId == userId);
+    }
+    else if (User.IsInRole("Medico") && pacienteId.HasValue)
+    {
+        // Si el médico quiere ver el gráfico de un paciente en concreto
+        query = query.Where(l => l.Dispositivo != null && l.Dispositivo.PacienteId == pacienteId.Value);
+        ViewBag.PacienteSeleccionado = await _context.Pacientes.FindAsync(pacienteId.Value);
+    }
+
+    // Orden cronológico ascendente para que la gráfica vaya de izquierda a derecha en el tiempo
+    var lecturas = await query
+        .OrderBy(l => l.FechaHora)
+        .ToListAsync();
+
+    return View(lecturas);
+}
+
     // POST: Lecturas/Delete/5
     [HttpPost, ActionName("Delete")]
     public async Task<IActionResult> DeleteConfirmed(int id)

@@ -1,0 +1,193 @@
+@model IEnumerable<pumpinsulin.Models.Lectura>
+
+@{
+    ViewData["Title"] = "Tendencia de Glucemias";
+    var paciente = ViewBag.PacienteSeleccionado as pumpinsulin.Models.Paciente;
+}
+
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="fw-bold mb-0">
+                📈 Tendencia de Glucemias
+                @if (paciente != null)
+                {
+                    <span class="text-primary fs-4">- @paciente.Nombre @paciente.Apellidos</span>
+                }
+            </h2>
+            <p class="text-muted small mb-0">Evolución de niveles de glucosa y administración de insulina en el tiempo</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary">Volver al Historial</a>
+            @if (User.IsInRole("Paciente"))
+            {
+                <a asp-action="Create" class="btn btn-primary">+ Añadir Lectura</a>
+            }
+        </div>
+    </div>
+
+    <!-- Estadísticas Rápidas -->
+    @if (Model.Any())
+    {
+        var total = Model.Count();
+        var mediaGlucosa = Math.Round(Model.Average(x => x.NivelGlucosaMgDl), 1);
+        var hipos = Model.Count(x => x.NivelGlucosaMgDl <= 65);
+        var hiper = Model.Count(x => x.NivelGlucosaMgDl >= 200);
+        var enRango = total - (hipos + hiper);
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 border-start border-primary border-4 p-3">
+                    <span class="text-muted small">Media de Glucosa</span>
+                    <h3 class="fw-bold text-primary mb-0">@mediaGlucosa <small class="fs-6">mg/dL</small></h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 border-start border-success border-4 p-3">
+                    <span class="text-muted small">En Rango Objetivo (70-180)</span>
+                    <h3 class="fw-bold text-success mb-0">@enRango <small class="fs-6">(@Math.Round((double)enRango / total * 100, 0)%)</small></h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 border-start border-danger border-4 p-3">
+                    <span class="text-muted small">Episodios Hipoglucemia (≤65)</span>
+                    <h3 class="fw-bold text-danger mb-0">@hipos</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0 border-start border-warning border-4 p-3">
+                    <span class="text-muted small">Episodios Hiperglucemia (≥200)</span>
+                    <h3 class="fw-bold text-warning mb-0">@hiper</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor del Gráfico -->
+        <div class="card shadow-sm border-0 p-4 mb-4">
+            <div style="height: 420px; position: relative;">
+                <canvas id="graficoGlucemias"></canvas>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center py-5">
+            <h4>No hay registros de lecturas para generar la gráfica.</h4>
+            <p class="text-muted">Introduce lecturas manuales o sube un archivo CSV para visualizar las tendencias.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- CDN de Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    @if (Model.Any())
+    {
+        <script>
+            // Extraer datos del modelo Razor hacia arrays JavaScript
+            const etiquetas = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.FechaHora.ToString("dd/MM HH:mm"))));
+            const datosGlucosa = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.NivelGlucosaMgDl)));
+            const datosInsulina = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => m.InsulinaSuministradaU)));
+
+            // Asignar colores a los puntos según el estado clínico
+            const coloresPuntos = datosGlucosa.map(valor => {
+                if (valor <= 65) return '#dc3545';  // Rojo (Hipoglucemia)
+                if (valor >= 200) return '#ffc107'; // Amarillo/Naranja (Hiperglucemia)
+                return '#0d6efd';                  // Azul (Objetivo)
+            });
+
+            const ctx = document.getElementById('graficoGlucemias').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: etiquetas,
+                    datasets: [
+                        {
+                            label: 'Nivel Glucosa (mg/dL)',
+                            data: datosGlucosa,
+                            borderColor: '#0d6efd',
+                            backgroundColor: 'rgba(13, 110, 253, 0.08)',
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: coloresPuntos,
+                            pointBorderColor: '#ffffff',
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            yAxisID: 'yGlucosa'
+                        },
+                        {
+                            label: 'Insulina Suministrada (U)',
+                            data: datosInsulina,
+                            type: 'bar',
+                            backgroundColor: 'rgba(25, 135, 84, 0.4)',
+                            borderColor: '#198754',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            yAxisID: 'yInsulina'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.yAxisID === 'yGlucosa') {
+                                        let extra = '';
+                                        if (context.raw <= 65) extra = ' ⚠️ Hipoglucemia';
+                                        if (context.raw >= 200) extra = ' ⚠️ Hiperglucemia';
+                                        return `${context.dataset.label}: ${context.raw} mg/dL${extra}`;
+                                    }
+                                    return `${context.dataset.label}: ${context.raw} U`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false }
+                        },
+                        yGlucosa: {
+                            type: 'linear',
+                            position: 'left',
+                            suggestedMin: 40,
+                            suggestedMax: 250,
+                            title: {
+                                display: true,
+                                text: 'Glucemia (mg/dL)',
+                                color: '#0d6efd',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        yInsulina: {
+                            type: 'linear',
+                            position: 'right',
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            grid: { drawOnChartArea: false },
+                            title: {
+                                display: true,
+                                text: 'Insulina (Unidades)',
+                                color: '#198754',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+    }
+}
